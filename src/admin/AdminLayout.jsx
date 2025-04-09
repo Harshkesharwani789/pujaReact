@@ -49,11 +49,11 @@ const AdminLayout = ({ children }) => {
       label: "Special Offers",
       path: "/admin/offers",
     },
-    {
-      icon: <Image className="h-5 w-5" />,
-      label: "Banners",
-      path: "/admin/banners",
-    },
+    // {
+    //   icon: <Image className="h-5 w-5" />,
+    //   label: "Banners",
+    //   path: "/admin/banners",
+    // },
     {
       icon: <ShoppingCart className="h-5 w-5" />,
       label: "Orders",

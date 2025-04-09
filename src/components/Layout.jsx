@@ -60,16 +60,16 @@ const Layout = ({ children }) => {
             >
               Categories
             </Link>
-            <Link
-              to="/offers"
-              className={`text-sm font-medium ${
-                location.pathname === "/offers"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              Special Offers
-            </Link>
+            {/* <Link
+                to="/offers"
+                className={`text-sm font-medium ${
+                  location.pathname === "/offers"
+                    ? "text-primary"
+                    : "hover:text-primary"
+                }`}
+              >
+                Special Offers
+              </Link>*/}
             <Link
               to="/about"
               className={`text-sm font-medium ${

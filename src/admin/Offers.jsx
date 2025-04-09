@@ -1,67 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Search, Tag, Percent } from "lucide-react";
 import AdminLayout from "./AdminLayout";
 import Button from "../components/ui/Button";
 
 const Offers = () => {
+  const [offers, setOffers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [offerType, setOfferType] = useState("discount");
+  const [newOffer, setNewOffer] = useState({
+    title: "",
+    type: "discount",
+    discount: 0,
+    startDate: "",
+    endDate: "",
+    products: 0,
+    status: "active",
+  });
+  const [editOffer, setEditOffer] = useState(null);
 
-  // Mock data
-  const offers = [
-    {
-      id: 1,
-      title: "Diwali Special Sale",
-      type: "discount",
-      discount: 15,
-      startDate: "2023-10-15",
-      endDate: "2023-11-15",
-      products: 24,
-      status: "active",
-    },
-    {
-      id: 2,
-      title: "Buy 1 Get 1 Free - Incense Sticks",
-      type: "bogo",
-      startDate: "2023-10-01",
-      endDate: "2023-10-31",
-      products: 8,
-      status: "active",
-    },
-    {
-      id: 3,
-      title: "Pooja Thali Bundle",
-      type: "bundle",
-      discount: 20,
-      startDate: "2023-09-15",
-      endDate: "2023-10-15",
-      products: 5,
-      status: "expired",
-    },
-    {
-      id: 4,
-      title: "Navratri Special",
-      type: "discount",
-      discount: 10,
-      startDate: "2023-10-15",
-      endDate: "2023-10-24",
-      products: 15,
-      status: "active",
-    },
-    {
-      id: 5,
-      title: "Brass Items Sale",
-      type: "discount",
-      discount: 12,
-      startDate: "2023-11-01",
-      endDate: "2023-11-30",
-      products: 18,
-      status: "scheduled",
-    },
-  ];
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const response = await fetch(
+          "https://pujabackend.onrender.com/api/offers"
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setOffers(data);
+      } catch (error) {
+        console.error("Error fetching offers:", error);
+      }
+    };
+
+    fetchOffers();
+  }, []);
 
   const filteredOffers = offers.filter((offer) =>
     offer.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -90,6 +67,80 @@ const Offers = () => {
         return <Tag className="h-4 w-4 text-blue-500" />;
       default:
         return <Tag className="h-4 w-4" />;
+    }
+  };
+
+  const handleAddOffer = async () => {
+    try {
+      const response = await fetch(
+        "https://pujabackend.onrender.com/api/offers",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newOffer),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setOffers([...offers, data]);
+      setShowAddModal(false);
+      setNewOffer({
+        title: "",
+        type: "discount",
+        discount: 0,
+        startDate: "",
+        endDate: "",
+        products: 0,
+        status: "active",
+      });
+    } catch (error) {
+      console.error("Error adding offer:", error);
+    }
+  };
+
+  const handleEditOffer = async (offer) => {
+    try {
+      const response = await fetch(
+        `https://pujabackend.onrender.com/api/offers/${offer._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(offer),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const updatedOffer = await response.json();
+      setOffers(
+        offers.map((o) => (o._id === updatedOffer._id ? updatedOffer : o))
+      );
+      setEditOffer(null);
+    } catch (error) {
+      console.error("Error editing offer:", error);
+    }
+  };
+
+  const handleDeleteOffer = async (id) => {
+    try {
+      const response = await fetch(
+        `https://pujabackend.onrender.com/api/offers/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setOffers(offers.filter((offer) => offer._id !== id));
+    } catch (error) {
+      console.error("Error deleting offer:", error);
     }
   };
 
@@ -153,7 +204,7 @@ const Offers = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredOffers.map((offer) => (
-                <tr key={offer.id}>
+                <tr key={offer._id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {offer.title}
@@ -192,10 +243,16 @@ const Offers = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-indigo-600 hover:text-indigo-900 mr-3">
+                    <button
+                      onClick={() => setEditOffer(offer)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-3"
+                    >
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button className="text-red-600 hover:text-red-900">
+                    <button
+                      onClick={() => handleDeleteOffer(offer._id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
@@ -227,6 +284,10 @@ const Offers = () => {
                 <input
                   type="text"
                   className="w-full px-3 py-2 border rounded-md"
+                  value={newOffer.title}
+                  onChange={(e) =>
+                    setNewOffer({ ...newOffer, title: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -235,8 +296,10 @@ const Offers = () => {
                 </label>
                 <select
                   className="w-full px-3 py-2 border rounded-md"
-                  value={offerType}
-                  onChange={(e) => setOfferType(e.target.value)}
+                  value={newOffer.type}
+                  onChange={(e) =>
+                    setNewOffer({ ...newOffer, type: e.target.value })
+                  }
                 >
                   <option value="discount">Discount</option>
                   <option value="bogo">Buy One Get One</option>
@@ -244,7 +307,7 @@ const Offers = () => {
                 </select>
               </div>
 
-              {offerType === "discount" && (
+              {newOffer.type === "discount" && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Discount Percentage
@@ -254,6 +317,13 @@ const Offers = () => {
                     className="w-full px-3 py-2 border rounded-md"
                     min="1"
                     max="100"
+                    value={newOffer.discount}
+                    onChange={(e) =>
+                      setNewOffer({
+                        ...newOffer,
+                        discount: parseInt(e.target.value, 10),
+                      })
+                    }
                   />
                 </div>
               )}
@@ -266,6 +336,13 @@ const Offers = () => {
                   <input
                     type="date"
                     className="w-full px-3 py-2 border rounded-md"
+                    value={newOffer.startDate}
+                    onChange={(e) =>
+                      setNewOffer({
+                        ...newOffer,
+                        startDate: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -275,6 +352,10 @@ const Offers = () => {
                   <input
                     type="date"
                     className="w-full px-3 py-2 border rounded-md"
+                    value={newOffer.endDate}
+                    onChange={(e) =>
+                      setNewOffer({ ...newOffer, endDate: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -283,27 +364,42 @@ const Offers = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Select Products
                 </label>
-                <select
+                <input
+                  type="number"
                   className="w-full px-3 py-2 border rounded-md"
-                  multiple
-                  size={4}
-                >
-                  <option value="1">Brass Ganesh Idol</option>
-                  <option value="2">Silver Pooja Thali Set</option>
-                  <option value="3">Decorative Diya Set</option>
-                  <option value="4">Sandalwood Incense Sticks</option>
-                  <option value="5">Marble Lakshmi Idol</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Hold Ctrl/Cmd to select multiple products
-                </p>
+                  value={newOffer.products}
+                  onChange={(e) =>
+                    setNewOffer({
+                      ...newOffer,
+                      products: parseInt(e.target.value, 10),
+                    })
+                  }
+                />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <Button variant="outline" onClick={() => setShowAddModal(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setShowAddModal(false)}>Add Offer</Button>
+              <Button onClick={handleAddOffer}>Add Offer</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Offer Modal */}
+      {editOffer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Edit Offer</h2>
+            {/* ... (Edit form similar to Add Offer form, but pre-filled with editOffer data) ... */}
+            <div className="flex justify-end gap-3 mt-6">
+              <Button variant="outline" onClick={() => setEditOffer(null)}>
+                Cancel
+              </Button>
+              <Button onClick={() => handleEditOffer(editOffer)}>
+                Save Changes
+              </Button>
             </div>
           </div>
         </div>
