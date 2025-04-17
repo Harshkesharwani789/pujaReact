@@ -26,7 +26,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/"
+          element={<HomePage token={token} setToken={setToken} />}
+        />
+
         <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/categories/:category" element={<CategoryPage />} />
         <Route path="/products/:id" element={<ProductPage />} />

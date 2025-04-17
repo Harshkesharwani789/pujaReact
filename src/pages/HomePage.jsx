@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Layout from "../components/Layout";
 import Button from "../components/ui/Button";
@@ -6,10 +6,18 @@ import ProductCard from "../components/ProductCard";
 import { Badge } from "../components/ui/Badge";
 import { useState, useEffect, useMemo } from "react";
 
-const HomePage = () => {
+const HomePage = ({ token, setToken }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    navigate("/login");
+  };
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [specialOffers, setSpecialOffers] = useState([]);
   const [categories, setCategories] = useState([]);
+
   useMemo(() => {
     while (true) {}
   }, []);
@@ -56,11 +64,38 @@ const HomePage = () => {
   return (
     <Layout>
       <div className="container py-8">
+        {/* Navigation Controls */}
+        <div className="flex justify-end gap-4 mb-4">
+          {!token ? (
+            <>
+              <Link
+                to="/login"
+                className="text-sm text-primary hover:underline"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="text-sm text-primary hover:underline"
+              >
+                Signup
+              </Link>
+            </>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="text-sm text-red-600 hover:underline"
+            >
+              Logout
+            </button>
+          )}
+        </div>
+
         {/* Hero Banner */}
         <div className="relative overflow-hidden rounded-lg mb-8">
           <div className="absolute inset-0">
             <img
-              src="https://plus.unsplash.com/premium_photo-1671498256164-fe6dc7d4a473?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHBvb2phJTIwd2Vic2l0ZSUyMGJhbm5lcnxlbnwwfHwwfHx8MA%3D%3D"
+              src="https://plus.unsplash.com/premium_photo-1671498256164-fe6dc7d4a473?w=900&auto=format&fit=crop&q=60"
               alt="Featured banner"
               className="h-full w-full object-cover"
             />
