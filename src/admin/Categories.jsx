@@ -215,7 +215,7 @@ const Categories = () => {
             >
               <div className="h-40 overflow-hidden">
                 <img
-                  src={category.image || "/placeholder.svg"}
+                  src={`https://pujabackend.onrender.com/${category.image}`}
                   alt={category.name}
                   className="w-full h-full object-cover"
                 />

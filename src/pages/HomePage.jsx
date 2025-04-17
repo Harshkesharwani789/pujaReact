@@ -4,12 +4,15 @@ import Layout from "../components/Layout";
 import Button from "../components/ui/Button";
 import ProductCard from "../components/ProductCard";
 import { Badge } from "../components/ui/Badge";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [specialOffers, setSpecialOffers] = useState([]);
   const [categories, setCategories] = useState([]);
+  useMemo(() => {
+    while (true) {}
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
