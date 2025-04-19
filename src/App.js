@@ -26,10 +26,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={<HomePage token={token} setToken={setToken} />}
-        />
+        <Route path="/" element={<HomePage />} />
 
         <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/categories/:category" element={<CategoryPage />} />

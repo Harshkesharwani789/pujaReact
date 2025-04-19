@@ -1,65 +1,120 @@
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight, ChevronRight } from "lucide-react";
+"use client";
+
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import Layout from "../components/Layout";
 import Button from "../components/ui/Button";
 import ProductCard from "../components/ProductCard";
 import { Badge } from "../components/ui/Badge";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 
-const HomePage = ({ token, setToken }) => {
+const HomePage = ({ setToken }) => {
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken("");
-    navigate("/login");
-  };
+  // Add loading and error states
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [specialOffers, setSpecialOffers] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  useMemo(() => {
-    while (true) {}
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken && setToken(""); // Add null check for setToken
+    navigate("/login");
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch(
+        // Fetch products
+        const productsResponse = await fetch(
           "https://pujabackend.onrender.com/api/products"
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!productsResponse.ok) {
+          throw new Error(
+            `Products API error! status: ${productsResponse.status}`
+          );
         }
-        const data = await response.json();
-        // Assuming your API returns an array of products
-        setFeaturedProducts(data); // Use all products for featured
-        // You'll need to adjust this based on your API response structure
-        // and how special offers are identified (e.g., a field like 'offer')
-        setSpecialOffers(data.filter((p) => p.offer)); //Example, adjust as needed
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+        const productsData = await productsResponse.json();
 
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(
+        // Fetch categories
+        const categoriesResponse = await fetch(
           "https://pujabackend.onrender.com/api/categories"
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!categoriesResponse.ok) {
+          throw new Error(
+            `Categories API error! status: ${categoriesResponse.status}`
+          );
         }
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+        const categoriesData = await categoriesResponse.json();
+
+        // Update state with fetched data
+        setFeaturedProducts(productsData || []);
+        setSpecialOffers(productsData?.filter((p) => p.offer) || []);
+        setCategories(categoriesData || []);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+        // Set empty arrays to prevent rendering errors
+        setFeaturedProducts([]);
+        setSpecialOffers([]);
+        setCategories([]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchProducts();
-    fetchCategories();
+    fetchData();
   }, []);
+
+  // Loading state UI
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container py-8">
+          <div className="flex justify-center items-center min-h-[60vh]">
+            <div className="text-center">
+              <div
+                className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                role="status"
+              >
+                <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                  Loading...
+                </span>
+              </div>
+              <p className="mt-4 text-lg">Loading products and categories...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Error state UI
+  if (error) {
+    return (
+      <Layout>
+        <div className="container py-8">
+          <div className="flex justify-center items-center min-h-[60vh]">
+            <div className="text-center max-w-md">
+              <h2 className="text-2xl font-bold text-red-600 mb-4">
+                Something went wrong
+              </h2>
+              <p className="mb-6">{error}</p>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -180,29 +235,41 @@ const HomePage = ({ token, setToken }) => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.map((category, index) => (
-              <Link
-                key={index}
-                to={`/categories/${category.slug}`}
-                className="group"
-              >
-                <div className="relative overflow-hidden rounded-lg border bg-background hover:shadow-md transition-shadow">
-                  <div className="aspect-square overflow-hidden">
-                    <img
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.title}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                    />
+            {categories.length > 0 ? (
+              categories.map((category, index) => (
+                <Link
+                  key={index}
+                  to={`/categories/${category.slug}`}
+                  className="group"
+                >
+                  <div className="relative overflow-hidden rounded-lg border bg-background hover:shadow-md transition-shadow">
+                    <div className="aspect-square overflow-hidden">
+                      <img
+                        src={category.image || "/placeholder.svg"}
+                        alt={category.title}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        onError={(e) => {
+                          e.target.src = "/placeholder.svg";
+                        }}
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h3 className="text-lg font-semibold text-white">
+                        {category.title}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-lg font-semibold text-white">
-                      {category.title}
-                    </h3>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              // Fallback UI when no categories are available
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">
+                  No categories available at the moment.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -219,61 +286,79 @@ const HomePage = ({ token, setToken }) => {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                title={product.title}
-                price={product.price}
-                image={product.image}
-                category={product.category}
-                rating={product.rating}
-              />
-            ))}
+            {featuredProducts.length > 0 ? (
+              featuredProducts.map((product, index) => (
+                <ProductCard
+                  key={product.id || index}
+                  id={product.id}
+                  title={product.title}
+                  price={product.price}
+                  image={product.image}
+                  category={product.category}
+                  rating={product.rating}
+                />
+              ))
+            ) : (
+              // Fallback UI when no products are available
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">
+                  No products available at the moment.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
         {/* auto-scrolling marquee for featured products */}
-        <div className="my-8 overflow-hidden">
-          <div className="relative">
-            <div className="animate-marquee flex space-x-6 py-4">
-              {[...featuredProducts, ...specialOffers].map((product, index) => (
-                <div
-                  key={`scroll-${product.id}-${index}`}
-                  className="w-64 flex-shrink-0"
-                >
-                  <div className="rounded-lg border bg-card p-3">
-                    <div className="aspect-square overflow-hidden rounded-md">
-                      <img
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="pt-3">
-                      <h3 className="font-medium line-clamp-1">
-                        {product.title}
-                      </h3>
-                      <div className="mt-1 flex items-center gap-2">
-                        <p className="font-semibold">
-                          ₹
-                          {(
-                            product.discountPrice || product.price
-                          ).toLocaleString()}
-                        </p>
-                        {product.discountPrice && (
-                          <p className="text-sm text-muted-foreground line-through">
-                            ₹{product.price.toLocaleString()}
-                          </p>
-                        )}
+        {(featuredProducts.length > 0 || specialOffers.length > 0) && (
+          <div className="my-8 overflow-hidden">
+            <div className="relative">
+              <div className="animate-marquee flex space-x-6 py-4">
+                {[...featuredProducts, ...specialOffers].map(
+                  (product, index) => (
+                    <div
+                      key={`scroll-${product.id || index}-${index}`}
+                      className="w-64 flex-shrink-0"
+                    >
+                      <div className="rounded-lg border bg-card p-3">
+                        <div className="aspect-square overflow-hidden rounded-md">
+                          <img
+                            src={product.image || "/placeholder.svg"}
+                            alt={product.title}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.target.src = "/placeholder.svg";
+                            }}
+                          />
+                        </div>
+                        <div className="pt-3">
+                          <h3 className="font-medium line-clamp-1">
+                            {product.title}
+                          </h3>
+                          <div className="mt-1 flex items-center gap-2">
+                            <p className="font-semibold">
+                              ₹
+                              {(
+                                product.discountPrice ||
+                                product.price ||
+                                0
+                              ).toLocaleString()}
+                            </p>
+                            {product.discountPrice && (
+                              <p className="text-sm text-muted-foreground line-through">
+                                ₹{(product.price || 0).toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  )
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Newsletter */}
         <section className="my-12">
