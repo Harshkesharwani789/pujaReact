@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Filter, Mail, Eye } from "lucide-react";
 import AdminLayout from "./AdminLayout";
 import Button from "../components/ui/Button";
@@ -8,102 +8,47 @@ import Button from "../components/ui/Button";
 const Customers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-
-  // Mock data
-  const customers = [
-    {
-      id: 1,
-      name: "Rajesh Sharma",
-      email: "rajesh@example.com",
-      orders: 12,
-      spent: "₹15,450",
-      status: "Active",
-      joined: "2022-05-15",
-    },
-    {
-      id: 2,
-      name: "Priya Patel",
-      email: "priya@example.com",
-      orders: 8,
-      spent: "₹9,850",
-      status: "Active",
-      joined: "2022-07-22",
-    },
-    {
-      id: 3,
-      name: "Amit Kumar",
-      email: "amit@example.com",
-      orders: 15,
-      spent: "₹22,300",
-      status: "Active",
-      joined: "2021-11-10",
-    },
-    {
-      id: 4,
-      name: "Sunita Gupta",
-      email: "sunita@example.com",
-      orders: 5,
-      spent: "₹6,100",
-      status: "Inactive",
-      joined: "2023-01-05",
-    },
-    {
-      id: 5,
-      name: "Vikram Singh",
-      email: "vikram@example.com",
-      orders: 10,
-      spent: "₹12,700",
-      status: "Active",
-      joined: "2022-03-18",
-    },
-    {
-      id: 6,
-      name: "Neha Sharma",
-      email: "neha@example.com",
-      orders: 7,
-      spent: "₹8,950",
-      status: "Active",
-      joined: "2022-09-30",
-    },
-    {
-      id: 7,
-      name: "Rahul Verma",
-      email: "rahul@example.com",
-      orders: 3,
-      spent: "₹4,500",
-      status: "Inactive",
-      joined: "2023-02-14",
-    },
-    {
-      id: 8,
-      name: "Ananya Patel",
-      email: "ananya@example.com",
-      orders: 9,
-      spent: "₹11,200",
-      status: "Active",
-      joined: "2022-06-08",
-    },
-    {
-      id: 9,
-      name: "Kiran Joshi",
-      email: "kiran@example.com",
-      orders: 6,
-      spent: "₹7,750",
-      status: "Active",
-      joined: "2022-08-22",
-    },
-    {
-      id: 10,
-      name: "Deepak Gupta",
-      email: "deepak@example.com",
-      orders: 2,
-      spent: "₹2,900",
-      status: "Inactive",
-      joined: "2023-03-05",
-    },
-  ];
-
+  const [customers, setCustomers] = useState([]);
   const statuses = ["All", "Active", "Inactive"];
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          "https://pujabackend.onrender.com/api/users",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch customers");
+        }
+
+        const data = await response.json();
+
+        // Transforming fetched users into customer-like data
+        const transformed = data.map((user, index) => ({
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          orders: user.orders?.length || 0,
+          spent: `₹${(user.orders?.length || 0) * 5000}`, // Sample spending logic
+          status: user.orders?.length > 0 ? "Active" : "Inactive",
+          joined: user.createdAt,
+        }));
+
+        setCustomers(transformed);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
@@ -121,10 +66,6 @@ const Customers = () => {
           <h1 className="text-2xl font-bold">Customers</h1>
           <p className="text-gray-600">Manage your customer base</p>
         </div>
-        <Button className="flex items-center">
-          <Mail className="h-4 w-4 mr-2" />
-          Send Email
-        </Button>
       </div>
 
       <div className="bg-white rounded-lg shadow mb-8">

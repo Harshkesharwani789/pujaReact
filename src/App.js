@@ -47,7 +47,7 @@ function App() {
           path="/admin"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Products />
             </ProtectedRoute>
           }
         />

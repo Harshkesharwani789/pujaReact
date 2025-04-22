@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import AdminLayout from "./AdminLayout";
 
 const AddOrEditProduct = () => {
-  const { id } = useParams(); // Product ID (if editing)
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -18,7 +18,6 @@ const AddOrEditProduct = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
-  // Load categories, product (if editing), and all products
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -124,9 +123,7 @@ const AddOrEditProduct = () => {
     try {
       const res = await fetch(
         `https://pujabackend.onrender.com/api/products/${productId}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
       const result = await res.json();
       if (!res.ok) throw new Error(result.message);
@@ -212,10 +209,15 @@ const AddOrEditProduct = () => {
               className="border p-4 rounded-lg shadow-sm flex flex-col gap-2"
             >
               <img
-                src={product.images?.[0]?.url || ""}
+                src={
+                  product.images && product.images.length > 0
+                    ? `https://pujabackend.onrender.com/${product.images[0]}`
+                    : ""
+                }
                 alt={product.name}
                 className="h-40 object-cover rounded"
               />
+
               <h4 className="text-lg font-semibold">{product.name}</h4>
               <p>₹{product.price}</p>
               <p>Stock: {product.stock}</p>

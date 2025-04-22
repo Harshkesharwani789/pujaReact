@@ -23,7 +23,7 @@ const Orders = () => {
       const response = await getOrders();
       setOrders(response.data);
     } catch (error) {
-      showToast("Error fetching orders", "error");
+      alert("Error fetching orders");
     } finally {
       setLoading(false);
     }
@@ -136,7 +136,15 @@ const Orders = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${order.status === "Delivered" ? "bg-green-100 text-green-800" : order.status === "Processing" ? "bg-blue-100 text-blue-800" : order.status === "Shipped" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}
+                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        order.status === "Delivered"
+                          ? "bg-green-100 text-green-800"
+                          : order.status === "Processing"
+                          ? "bg-blue-100 text-blue-800"
+                          : order.status === "Shipped"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
                     >
                       {order.status}
                     </span>
@@ -169,5 +177,5 @@ export default Orders;
 
 const handleViewOrder = (orderId) => {
   // Navigate to order details page or show order details modal
-  console.log('View order:', orderId);
+  console.log("View order:", orderId);
 };

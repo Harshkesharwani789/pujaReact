@@ -29,11 +29,11 @@ const AdminLayout = ({ children }) => {
   };
 
   const navItems = [
-    {
-      icon: <LayoutDashboard className="h-5 w-5" />,
-      label: "Dashboard",
-      path: "/admin",
-    },
+    // {
+    //   icon: <LayoutDashboard className="h-5 w-5" />,
+    //   label: "Dashboard",
+    //   path: "/admin",
+    // },
     {
       icon: <Package className="h-5 w-5" />,
       label: "Products",
@@ -44,11 +44,11 @@ const AdminLayout = ({ children }) => {
       label: "Categories",
       path: "/admin/categories",
     },
-    {
-      icon: <Percent className="h-5 w-5" />,
-      label: "Special Offers",
-      path: "/admin/offers",
-    },
+    // {
+    //   icon: <Percent className="h-5 w-5" />,
+    //   label: "Special Offers",
+    //   path: "/admin/offers",
+    // },
     // {
     //   icon: <Image className="h-5 w-5" />,
     //   label: "Banners",
@@ -64,11 +64,11 @@ const AdminLayout = ({ children }) => {
       label: "Customers",
       path: "/admin/customers",
     },
-    {
-      icon: <Settings className="h-5 w-5" />,
-      label: "Settings",
-      path: "/admin/settings",
-    },
+    // {
+    //   icon: <Settings className="h-5 w-5" />,
+    //   label: "Settings",
+    //   path: "/admin/settings",
+    // },
   ];
 
   return (
