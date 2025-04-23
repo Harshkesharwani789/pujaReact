@@ -41,6 +41,7 @@ const HomePage = ({ setToken }) => {
           );
         }
         const productsData = await productsResponse.json();
+        console.log("Products Data:", productsData);
 
         // Fetch categories
         const categoriesResponse = await fetch(
@@ -52,6 +53,7 @@ const HomePage = ({ setToken }) => {
           );
         }
         const categoriesData = await categoriesResponse.json();
+        console.log("Categories Data:", categoriesData);
 
         // Update state with fetched data
         setFeaturedProducts(productsData || []);
@@ -245,8 +247,8 @@ const HomePage = ({ setToken }) => {
                   <div className="relative overflow-hidden rounded-lg border bg-background hover:shadow-md transition-shadow">
                     <div className="aspect-square overflow-hidden">
                       <img
-                        src={category.image || "/placeholder.svg"}
-                        alt={category.title}
+                        src={`https://pujabackend.onrender.com/${category.image}`}
+                        alt={category.name}
                         className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         onError={(e) => {
                           e.target.src = "/placeholder.svg";
@@ -291,9 +293,9 @@ const HomePage = ({ setToken }) => {
                 <ProductCard
                   key={product.id || index}
                   id={product.id}
-                  title={product.title}
+                  title={product.name}
                   price={product.price}
-                  image={product.image}
+                  image={`https://pujabackend.onrender.com/${product.image}`}
                   category={product.category}
                   rating={product.rating}
                 />
