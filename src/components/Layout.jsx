@@ -1,16 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, Heart, Search, Menu, X } from "lucide-react";
 import Button from "./ui/Button";
 import MobileMenu from "./MobileMenu";
 import SearchBar from "./SearchBar";
 
-const Layout = ({ children }) => {
+const Layout = ({ setToken, children }) => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const location = useLocation();
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken && setToken(""); // Add null check for setToken
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,11 +133,31 @@ const Layout = ({ children }) => {
                 <ShoppingCart className="h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/login" className="hidden sm:block">
-              <Button variant="outline" size="sm">
-                Login
-              </Button>
-            </Link>
+            <div className="flex justify-end gap-4 mb-4">
+              {!token ? (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Signup
+                  </Link>
+                </>
+              ) : (
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Logout
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

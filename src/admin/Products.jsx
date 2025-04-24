@@ -211,7 +211,7 @@ const AddOrEditProduct = () => {
               <img
                 src={
                   product.images && product.images.length > 0
-                    ? `https://pujabackend.onrender.com/${product.images[0]}`
+                    ? `https://pujabackend.onrender.com/uploads/products/${product.images[0]}`
                     : ""
                 }
                 alt={product.name}

@@ -124,7 +124,7 @@ const CartPage = () => {
                       <div className="aspect-square overflow-hidden rounded-md">
                         <img
                           src={item.image || "/placeholder.svg"}
-                          alt={item.title}
+                          alt={item.name}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -201,38 +201,6 @@ const CartPage = () => {
               <Button variant="outline" onClick={() => clearCart()}>
                 Clear Cart
               </Button>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">
-                You might also like
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <ProductCard
-                  id="25"
-                  title="Silver Nandi Idol"
-                  price={1499}
-                  image="/placeholder.svg"
-                  category="Idols & Statues"
-                  rating={4.7}
-                />
-                <ProductCard
-                  id="26"
-                  title="Brass Bell"
-                  price={699}
-                  image="/placeholder.svg"
-                  category="Puja Accessories"
-                  rating={4.8}
-                />
-                <ProductCard
-                  id="27"
-                  title="Copper Kalash"
-                  price={899}
-                  image="/placeholder.svg"
-                  category="Puja Accessories"
-                  rating={4.6}
-                />
-              </div>
             </div>
           </div>
 

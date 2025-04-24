@@ -9,21 +9,12 @@ import { Badge } from "../components/ui/Badge";
 import { useState, useEffect } from "react";
 
 const HomePage = ({ setToken }) => {
-  const token = localStorage.getItem("token");
-  const navigate = useNavigate();
-
   // Add loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [specialOffers, setSpecialOffers] = useState([]);
   const [categories, setCategories] = useState([]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken && setToken(""); // Add null check for setToken
-    navigate("/login");
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -122,31 +113,6 @@ const HomePage = ({ setToken }) => {
     <Layout>
       <div className="container py-8">
         {/* Navigation Controls */}
-        <div className="flex justify-end gap-4 mb-4">
-          {!token ? (
-            <>
-              <Link
-                to="/login"
-                className="text-sm text-primary hover:underline"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="text-sm text-primary hover:underline"
-              >
-                Signup
-              </Link>
-            </>
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="text-sm text-red-600 hover:underline"
-            >
-              Logout
-            </button>
-          )}
-        </div>
 
         {/* Hero Banner */}
         <div className="relative overflow-hidden rounded-lg mb-8">
@@ -160,68 +126,27 @@ const HomePage = ({ setToken }) => {
           </div>
           <div className="relative py-12 px-6 md:py-24 md:px-12 max-w-md">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Diwali Special Collection
+              Divine Essentials for Every Puja Ritual
             </h1>
             <p className="text-white/90 mb-6">
-              Discover our exclusive range of premium puja items and decorations
-              for this festive season. Limited time offers available!
+              Discover everything you need to complete your spiritual rituals –
+              from sacred idols and puja samagri to beautifully crafted diyas
+              and incense. Bring peace, positivity, and devotion into your home
+              with our handpicked collection for every occasion.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 asChild
                 size="lg"
-                className="bg-white text-primary hover:bg-white/90"
+                className=" text-primary hover:bg-white/90"
               >
-                <Link to="/categories/diwali">Shop Now</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-              >
-                <Link to="/offers">View Offers</Link>
+                <Link to="/categories">Shop Now</Link>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Announcement Bar */}
-        <div className="my-6 bg-primary/10 rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Badge
-              variant="outline"
-              className="bg-primary text-primary-foreground"
-            >
-              NEW
-            </Badge>
-            <p className="text-sm md:text-base">
-              Diwali Special Collection is now available! Limited stock.
-            </p>
-          </div>
-          <div className="flex items-center gap-1 md:gap-2 text-sm md:text-base">
-            {/* Timer - Replace with actual timer logic if needed */}
-            <div className="bg-primary/10 px-2 py-1 rounded">
-              <span className="font-semibold">05</span>
-              <span className="text-xs ml-1">d</span>
-            </div>
-            <span>:</span>
-            <div className="bg-primary/10 px-2 py-1 rounded">
-              <span className="font-semibold">12</span>
-              <span className="text-xs ml-1">h</span>
-            </div>
-            <span>:</span>
-            <div className="bg-primary/10 px-2 py-1 rounded">
-              <span className="font-semibold">45</span>
-              <span className="text-xs ml-1">m</span>
-            </div>
-            <span>:</span>
-            <div className="bg-primary/10 px-2 py-1 rounded">
-              <span className="font-semibold">30</span>
-              <span className="text-xs ml-1">s</span>
-            </div>
-          </div>
-        </div>
 
         {/* Categories */}
         <section className="my-12">
@@ -239,11 +164,7 @@ const HomePage = ({ setToken }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.length > 0 ? (
               categories.map((category, index) => (
-                <Link
-                  key={index}
-                  to={`/categories/${category.slug}`}
-                  className="group"
-                >
+                <Link key={index} to={`/categories`} className="group">
                   <div className="relative overflow-hidden rounded-lg border bg-background hover:shadow-md transition-shadow">
                     <div className="aspect-square overflow-hidden">
                       <img
@@ -258,7 +179,7 @@ const HomePage = ({ setToken }) => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <h3 className="text-lg font-semibold text-white">
-                        {category.title}
+                        {category.name}
                       </h3>
                     </div>
                   </div>
@@ -279,13 +200,6 @@ const HomePage = ({ setToken }) => {
         <section className="my-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Products</h2>
-            <Link
-              to="/featured"
-              className="text-sm text-primary hover:underline flex items-center"
-            >
-              View All
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {featuredProducts.length > 0 ? (
@@ -295,7 +209,7 @@ const HomePage = ({ setToken }) => {
                   id={product.id}
                   title={product.name}
                   price={product.price}
-                  image={`https://pujabackend.onrender.com/${product.image}`}
+                  image={`https://pujabackend.onrender.com/uploads/products/${product.images[0]}`}
                   category={product.category}
                   rating={product.rating}
                 />
@@ -325,7 +239,7 @@ const HomePage = ({ setToken }) => {
                       <div className="rounded-lg border bg-card p-3">
                         <div className="aspect-square overflow-hidden rounded-md">
                           <img
-                            src={product.image || "/placeholder.svg"}
+                            src={`https://pujabackend.onrender.com/uploads/products/${product.images[0]}`}
                             alt={product.title}
                             className="h-full w-full object-cover"
                             onError={(e) => {
