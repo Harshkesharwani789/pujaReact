@@ -277,26 +277,6 @@ const HomePage = ({ setToken }) => {
         )}
 
         {/* Newsletter */}
-        <section className="my-12">
-          <div className="rounded-lg bg-primary/5 p-8 text-center">
-            <h2 className="text-2xl font-bold mb-2">
-              Subscribe to Our Newsletter
-            </h2>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Stay updated with our latest products, special offers, and
-              spiritual insights.
-            </p>
-
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-3 py-2 border rounded-md"
-              />
-              <Button type="submit">Subscribe</Button>
-            </form>
-          </div>
-        </section>
       </div>
     </Layout>
   );

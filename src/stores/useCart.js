@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { v4 as uuidv4 } from "uuid";
 
 const useCart = create(
   persist(
@@ -7,32 +8,49 @@ const useCart = create(
       items: [],
 
       addToCart: (item) => {
+        if (!item.id) {
+          item.id = uuidv4(); // 🔁 assign unique ID if missing
+        }
+
+        console.log("Adding item to cart:", item);
+
         const currentItems = get().items;
         const existingItem = currentItems.find((i) => i.id === item.id);
 
         if (existingItem) {
-          return set({
+          set({
             items: currentItems.map((i) =>
               i.id === item.id
-                ? { ...i, quantity: i.quantity + item.quantity }
+                ? { ...i, quantity: i.quantity + (item.quantity || 1) }
                 : i
             ),
           });
+        } else {
+          set({
+            items: [...currentItems, { ...item, quantity: item.quantity || 1 }],
+          });
         }
 
-        set({ items: [...currentItems, item] });
+        console.log("Cart after update:", get().items);
       },
 
       removeFromCart: (id) => {
-        set({ items: get().items.filter((item) => item.id !== id) });
+        set({
+          items: get().items.filter((item) => item.id !== id),
+        });
       },
 
       updateQuantity: (id, quantity) => {
-        set({
-          items: get().items.map((item) =>
-            item.id === id ? { ...item, quantity } : item
-          ),
-        });
+        if (quantity <= 0) {
+          // Optional: remove item if quantity is 0 or less
+          get().removeFromCart(id);
+        } else {
+          set({
+            items: get().items.map((item) =>
+              item.id === id ? { ...item, quantity } : item
+            ),
+          });
+        }
       },
 
       clearCart: () => {
@@ -40,11 +58,13 @@ const useCart = create(
       },
 
       getItemCount: () => {
-        return get().items.reduce((total, item) => total + item.quantity, 0);
+        const items = get().items || [];
+        return items.reduce((total, item) => total + item.quantity, 0);
       },
 
       getTotal: () => {
-        return get().items.reduce(
+        const items = get().items || [];
+        return items.reduce(
           (total, item) => total + item.price * item.quantity,
           0
         );
@@ -52,6 +72,7 @@ const useCart = create(
     }),
     {
       name: "cart-storage",
+      skipHydration: true, // optional if using Next.js to avoid hydration mismatch
     }
   )
 );
